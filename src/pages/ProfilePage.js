@@ -5,7 +5,7 @@ import useProfile from '../hooks/useProfile';
 
 function ProfilePage() {
   const { currentUser } = useAuth();
-  const { profile, loading, error, updateProfile } = useProfile(currentUser);
+  const { profile, referralLinks, loading, error, updateProfile } = useProfile(currentUser);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
 
@@ -127,6 +127,25 @@ function ProfilePage() {
                 <span className="info-value">{profile.address || 'غير محدد'}</span>
               </div>
             </div>
+            <div className="profile-section">
+  <h3>روابط الإحالة</h3>
+  {referralLinks.length > 0 ? (
+    <ul>
+      {referralLinks.map((link) => (
+        <li key={link.id}>
+          <strong>اسم المشروع:</strong> {link.projectName || 'غير متوفر'} <br />
+          <strong>رابط الإحالة:</strong>{' '}
+          <a href={link.referralLink} target="_blank" rel="noopener noreferrer">
+            {link.referralLink}
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p>لا توجد روابط إحالة.</p>
+  )}
+</div>
+
           </div>
         )}
       </div>

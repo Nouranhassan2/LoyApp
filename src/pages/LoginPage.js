@@ -16,6 +16,12 @@ function LoginPage() {
 
   useEffect(() => {
     if (currentUser) {
+
+      if (!currentUser.isActive) {
+        setErrorMessage('تم تعطيل الحساب. يرجى التواصل مع الدعم الفني.');
+        return;
+      }
+
       const role = currentUser.role ? currentUser.role.toLowerCase() : '';
       if (role === 'member') {
         navigate('/member-dashboard');
@@ -75,6 +81,7 @@ function LoginPage() {
         if (matches && matches.length > 0) {
           errorCode = matches[0].replace(/[()]/g, '');
         }
+
       }
 
       let message = '';

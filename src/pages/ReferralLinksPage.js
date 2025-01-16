@@ -134,7 +134,7 @@ function ReferralLinksPage() {
               <tbody>
                 {filteredReferralLinks.map((link) => (
                   <tr key={link.id}>
-                    <td>{getProjectNameById(link.projectId)}</td>
+                    <td>{getProjectNameById(link.projectName )}</td>
                     <td>{getMemberNameById(link.memberId)}</td>
                     <td>
                       <a href={link.referralLink} target="_blank" rel="noopener noreferrer">

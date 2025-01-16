@@ -68,6 +68,7 @@ function NavigationBar() {
             <NavLink to="/activity-management" className={({ isActive }) => (isActive ? 'active' : '')}>
               إدارة الأنشطة
             </NavLink>
+       
             <NavLink to="/notifications" className={({ isActive }) => (isActive ? 'active' : '')}>
               الإشعارات
             </NavLink>

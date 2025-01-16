@@ -63,8 +63,11 @@ const useMemberDashboard = (currentUser) => {
         ...doc.data(),
         createdAt: doc.data().createdAt?.toDate()
       }));
+      console.log("Fetched activities:", activitiesList); // Debugging line
 
       setActivities(activitiesList);
+      console.log('Fetched Activities:', activitiesList); // Debug log
+
       setStats(prev => ({ ...prev, activitiesCount: activitiesList.length }));
     } catch (error) {
       console.error('Error fetching activities:', error);
@@ -139,6 +142,33 @@ const useMemberDashboard = (currentUser) => {
     }
   };
 
+  const fetchAllActivities = async () => {
+    try {
+      const activitiesRef = collection(db, 'activities');
+      const q = query(activitiesRef, orderBy('createdAt', 'desc')); // Order by creation date
+  
+      const snapshot = await getDocs(q);
+  
+      if (snapshot.empty) {
+        console.log("No activities found."); // Debugging log
+        setActivities([]); // Clear activities if no data found
+        return;
+      }
+  
+      const activitiesList = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || null, // Convert Firestore timestamp to JS Date
+      }));
+  
+      console.log("Fetched all activities:", activitiesList); // Debugging log
+      setActivities(activitiesList); // Set activities state
+    } catch (error) {
+      console.error('Error fetching all activities:', error);
+      throw new Error('حدث خطأ أثناء جلب جميع الأنشطة');
+    }
+  };
+  
   // تسجيل قراءة الإشعار
   const markNotificationAsRead = async (notificationId) => {
     try {
@@ -199,6 +229,9 @@ const useMemberDashboard = (currentUser) => {
           fetchRewards(),
           fetchNotifications()
         ]);
+        console.log('Activities:', activities); // Debug log
+        
+
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -218,6 +251,7 @@ const useMemberDashboard = (currentUser) => {
     notifications,
     stats,
     loading,
+    fetchAllActivities,
     markNotificationAsRead,
     refreshData: async () => {
       await Promise.all([

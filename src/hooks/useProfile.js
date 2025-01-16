@@ -1,16 +1,18 @@
 // hooks/useProfile.js
 import { useState, useEffect } from 'react';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
 const useProfile = (currentUser) => {
   const [profile, setProfile] = useState(null);
+  const [referralLinks, setReferralLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (currentUser) {
       fetchProfile();
+      fetchReferralLinks(currentUser.uid); // Fetch referral links
     }
   }, [currentUser]);
 
@@ -23,6 +25,27 @@ const useProfile = (currentUser) => {
       }
     } catch (err) {
       setError('حدث خطأ أثناء جلب البيانات');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchReferralLinks = async (memberId) => {
+    try {
+      setLoading(true);
+      const referralLinksRef = collection(db, 'referralLinks');
+      const q = query(referralLinksRef, where('memberId', '==', memberId));
+      const snapshot = await getDocs(q);
+
+      const links = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setReferralLinks(links);
+    } catch (err) {
+      setError('حدث خطأ أثناء جلب روابط الإحالة');
       console.error(err);
     } finally {
       setLoading(false);
@@ -46,10 +69,11 @@ const useProfile = (currentUser) => {
 
   return {
     profile,
+    referralLinks,
     loading,
     error,
     updateProfile,
-    refreshProfile: fetchProfile
+    refreshProfile: fetchProfile,
   };
 };
 

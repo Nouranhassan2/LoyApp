@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import useMemberDashboard from '../hooks/useMemberDashboard';
 import { Link } from 'react-router-dom';
+import ActivitiesTableModal from '../components/ActivitiesTableModal';
 
 // مكون البطاقة الإحصائية
 const StatCard = ({ title, value, icon, color }) => (
@@ -58,11 +59,17 @@ function MemberDashboardPage() {
     stats,
     loading,
     markNotificationAsRead,
+    fetchAllActivities,
+
     refreshData
   } = useMemberDashboard(currentUser);
 
   const [selectedNotification, setSelectedNotification] = useState(null);
-
+  const [showActivitiesModal, setShowActivitiesModal] = useState(false); 
+  const handleOpenModal = async () => {
+    await fetchAllActivities(); // Fetch all activities when modal opens
+    setShowActivitiesModal(true);
+  };
   if (loading) {
     return (
       <div className="loading-container">
@@ -128,9 +135,9 @@ function MemberDashboardPage() {
         <section className="dashboard-section">
           <div className="section-header">
             <h2>آخر الأنشطة</h2>
-            <Link to="/activities" className="view-all-link">
-              عرض الكل
-            </Link>
+            <button className="view-all-button" onClick={handleOpenModal}>
+            عرض الكل
+          </button>
           </div>
           <div className="activities-list">
             {activities.length > 0 ? (
@@ -220,6 +227,14 @@ function MemberDashboardPage() {
           notification={selectedNotification}
           onConfirm={handleReadNotification}
           onClose={() => setSelectedNotification(null)}
+        />
+      )}
+
+      {/* Activities Table Modal */}
+      {showActivitiesModal && (
+        <ActivitiesTableModal
+          activities={activities}
+          onClose={() => setShowActivitiesModal(false)}
         />
       )}
     </div>

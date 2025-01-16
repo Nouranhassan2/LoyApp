@@ -97,12 +97,12 @@ const useReferralLinks = () => {
       alert('يرجى اختيار مشروع قبل إنشاء رابط الإحالة');
       return;
     }
-
+  
     if (!selectedMember) {
       alert('يرجى اختيار العضو الذي تريد ربط الرابط به');
       return;
     }
-
+  
     setLoading(true);
     try {
       const selectedProjectObj = projects.find((p) => p.id === selectedProject);
@@ -111,23 +111,24 @@ const useReferralLinks = () => {
         setLoading(false);
         return;
       }
-
+  
       const referralCode = `REF-${selectedMember}-${Date.now()}`;
       const referralLink = `${selectedProjectObj.link}?ref=${referralCode}&project=${selectedProject}`;
-
-      // حفظ رابط الإحالة في قاعدة البيانات
+  
+      // Save referral link with projectName
       const newReferralLink = {
         userId: currentUser.uid,
         memberId: selectedMember,
         referralCode,
         referralLink,
         projectId: selectedProject,
+        projectName: selectedProjectObj.name, // Add projectName here
         createdAt: Timestamp.now(),
       };
       await addDoc(collection(db, 'referralLinks'), newReferralLink);
-
+  
       alert('تم إنشاء رابط الإحالة بنجاح!');
-      // تحديث قائمة الروابط
+      // Refresh the referral links list
       await fetchReferralLinks();
     } catch (error) {
       console.error('خطأ في إنشاء رابط الإحالة:', error);
@@ -136,6 +137,7 @@ const useReferralLinks = () => {
       setLoading(false);
     }
   };
+  
 
   // جلب الإحصائيات والإحالات لرابط إحالة محدد
   const fetchStatsAndReferrals = async (referralCode) => {
