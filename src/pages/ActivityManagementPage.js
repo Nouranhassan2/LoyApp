@@ -1,6 +1,9 @@
 // pages/ActivityManagementPage.js
 import React, { useState, useEffect } from 'react';
 import useManageActivities from '../hooks/useManageActivities';
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { db } from "../firebaseConfig"; // Ensure your Firebase config is correctly imported
+
 import '../App.css';
 
 function ActivityManagementPage() {
@@ -96,6 +99,35 @@ function ActivityManagementPage() {
       setIsSubmitting(false);
     }
   };
+  const handleActivate = async (activityId) => {
+    try {
+      const activityRef = doc(db, "activities", activityId);
+      console.log("Activating activity with ID:", activityId);
+      await updateDoc(activityRef, { isActive: true });
+      console.log("Activity activated successfully");
+      alert("تم تفعيل النشاط بنجاح");
+      fetchActivities();
+    } catch (error) {
+      console.error("خطأ أثناء تفعيل النشاط:", error);
+      alert("تعذر تفعيل النشاط.");
+    }
+  };
+  
+  const handleDeactivate = async (activityId) => {
+    try {
+      const activityRef = doc(db, "activities", activityId); // Correct document reference
+      console.log("Deactivating activity with ID:", activityId);
+      console.log("Activity reference:", activityRef.path); // Log the document reference path
+    console.log("Updating with value: { isActive: false }"); 
+      await updateDoc(activityRef, { isActive: false }); // Update isActive to false
+      console.log("Activity deactivated successfully");
+      alert("تم تعطيل النشاط بنجاح");
+      fetchActivities(); // Refresh the activities list to reflect changes
+    } catch (error) {
+      console.error("خطأ أثناء تعطيل النشاط:", error);
+      alert("تعذر تعطيل النشاط. تحقق من إعدادات قاعدة البيانات.");
+    }
+  };
 
   // تفريغ النموذج
   const clearForm = () => {
@@ -146,6 +178,8 @@ function ActivityManagementPage() {
     }
   };
 
+
+
   return (
     <div className="container">
       <h1 className="page-title">إدارة الأنشطة</h1>
@@ -153,18 +187,43 @@ function ActivityManagementPage() {
       {/* نموذج إضافة/تعديل النشاط */}
       <div className="activity-form card">
         <h2>{selectedActivity ? 'تعديل نشاط' : 'إضافة نشاط جديد'}</h2>
+
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+        <div className="form-group">
             <label>اسم النشاط:</label>
-            <input
-              type="text"
+            <select
               name="name"
               value={activityForm.name}
               onChange={handleInputChange}
               className={`form-control ${formErrors.name ? 'error' : ''}`}
-              placeholder="أدخل اسم النشاط"
-            />
+              required
+            >
+              <option value="" disabled>
+                اختر اسم النشاط
+              </option>
+              <option value="عدد النقرات">عدد النقرات</option>
+              <option value="الإبلاغ عن مشكلة">الإبلاغ عن مشكلة</option>
+            </select>
             {formErrors.name && <span className="error-message">{formErrors.name}</span>}
+          </div>
+
+
+        <div className="form-group">
+            <label>اسم المشروع:</label>
+            <select
+              name="projectName"
+              value={activityForm.projectName}
+              onChange={handleInputChange}
+              className={`form-control ${formErrors.projectName ? 'error' : ''}`}
+              required
+            >
+              <option value="" disabled>
+                اختر اسم المشروع
+              </option>
+              <option value="متاجر الحي">متاجر الحي</option>
+              <option value="استبيان هنا AI">استبيان هنا AI</option>
+            </select>
+            {formErrors.projectName && <span className="error-message">{formErrors.projectName}</span>}
           </div>
 
           <div className="form-group">
@@ -268,45 +327,98 @@ function ActivityManagementPage() {
     {/* جدول الأنشطة */}
 <div className="table-container">
   {activities.length > 0 ? (
-    <table className="activities-table">
-      <thead>
-        <tr>
-          <th className="narrow-column">اسم النشاط</th>
-          <th className="wide-column">الوصف</th>
-          <th className="narrow-column">النقاط</th>
-          <th className="narrow-column">عدد المشتركين</th>
-          <th className="narrow-column">تاريخ الإنشاء</th>
-          <th className="narrow-column">الإجراءات</th>
-        </tr>
-      </thead>
-      <tbody>
-        {activities.map((activity) => (
-          <tr key={activity.id}>
-            <td>{activity.name}</td>
-            <td className="description-cell wide-column">
-              {activity.description}
-            </td>
-            <td className="number-cell">{activity.points}</td>
-            <td className="number-cell">{activity.participantsCount}</td>
-            <td className="date-cell">{activity.createdAt}</td>
-            <td className="actions-cell">
-              <button
-                onClick={() => handleEdit(activity)}
-                className="edit-button"
-              >
-                تعديل
-              </button>
-              <button
-                onClick={() => handleDelete(activity.id)}
-                className="delete-button"
-              >
-                حذف
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+<table
+  className="activities-table"
+  style={{ tableLayout: "fixed", width: "100%", borderCollapse: "collapse" }}
+>
+  <thead>
+    <tr>
+      <th style={{ width: "10%", textAlign: "center" }}>اسم النشاط</th>
+      <th style={{ width: "10%", textAlign: "center" }}>اسم المشروع</th>
+      <th style={{ width: "30%", textAlign: "center" }}>الوصف</th>
+      <th style={{ width: "10%", textAlign: "center" }}>النقاط</th>
+      <th style={{ width: "10%", textAlign: "center" }}>عدد المشتركين</th>
+      <th style={{ width: "10%", textAlign: "center" }}>تاريخ الإنشاء</th>
+      <th style={{ width: "10%", textAlign: "center" }}>الإجراءات</th>
+    </tr>
+  </thead>
+<tbody>
+  {activities.map((activity) => (
+    <tr key={activity.id}>
+      <td style={{ textAlign: "center" }}>{activity.name}</td>
+      <td style={{ textAlign: "center" }}>{activity.projectName}</td>
+      <td style={{ textAlign: "center" }}>{activity.description}</td>
+      <td style={{ textAlign: "center" }}>{activity.points}</td>
+      <td style={{ textAlign: "center" }}>{activity.participantsCount}</td>
+      <td style={{ textAlign: "center" }}>{activity.createdAt}</td>
+      <td style={{ textAlign: "center" }}>
+        <button
+          onClick={() => handleEdit(activity)}
+          style={{
+            backgroundColor: "#007bff",
+            color: "white",
+            padding: "5px 10px",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          تعديل
+        </button>
+        <button
+          onClick={() => handleDelete(activity.id)}
+          style={{
+            backgroundColor: "#dc3545",
+            color: "white",
+            padding: "5px 10px",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+            marginLeft: "5px",
+          }}
+        >
+          حذف
+        </button>
+        {/* Activate and Deactivate Buttons */}
+        {activity.isActive ? (
+          <button
+            onClick={() => handleDeactivate(activity.id)}
+            style={{
+              backgroundColor: "#ffc107",
+              color: "black",
+              padding: "5px 10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              marginLeft: "5px",
+            }}
+          >
+            تعطيل
+          </button>
+        ) : (
+          <button
+            onClick={() => handleActivate(activity.id)}
+            style={{
+              backgroundColor: "#28a745",
+              color: "white",
+              padding: "5px 10px",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              marginLeft: "5px",
+            }}
+          >
+            تفعيل
+          </button>
+        )}
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+</table>
+
+ 
   ) : (
     <div className="no-data">
       {searchTerm ? 'لا توجد نتائج للبحث' : 'لا توجد أنشطة مضافة'}

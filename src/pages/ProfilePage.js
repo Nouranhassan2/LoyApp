@@ -123,28 +123,68 @@ function ProfilePage() {
                 <span className="info-value">{profile.phoneNumber || 'غير محدد'}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">العنوان</span>
-                <span className="info-value">{profile.address || 'غير محدد'}</span>
+                <span className="info-label"> :العنوان </span>
+                <span className="info-value">{profile.district || 'غير محدد' },{profile.city || 'غير محدد'}</span>
               </div>
             </div>
             <div className="profile-section">
   <h3>روابط الإحالة</h3>
   {referralLinks.length > 0 ? (
-    <ul>
-      {referralLinks.map((link) => (
-        <li key={link.id}>
-          <strong>اسم المشروع:</strong> {link.projectName || 'غير متوفر'} <br />
-          <strong>رابط الإحالة:</strong>{' '}
-          <a href={link.referralLink} target="_blank" rel="noopener noreferrer">
-            {link.referralLink}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <table className="referral-table" style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'right' }}>
+      <thead>
+        <tr>
+          <th style={{ border: '1px solid #ddd', padding: '8px' }}>اسم المشروع</th>
+          <th style={{ border: '1px solid #ddd', padding: '8px' }}>رابط الإحالة</th>
+          <th style={{ border: '1px solid #ddd', padding: '8px' }}>عدد المستخدمين الذين استخدموا رابط الإحالة</th>
+          <th style={{ border: '1px solid #ddd', padding: '8px' }}>عدد النقاط المكتسبة</th>
+          <th style={{ border: '1px solid #ddd', padding: '8px' }}>مشاركة عبر واتساب</th>
+        </tr>
+      </thead>
+      <tbody>
+        {referralLinks.map((link) => (
+          <tr key={link.id}>
+            <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+              {link.projectName || 'غير متوفر'}
+            </td>
+            <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+              <a href={link.referralLink} target="_blank" rel="noopener noreferrer">
+                {link.referralLink}
+              </a>
+            </td>
+            <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+              {link.usersCount || 0} {/* Replace with actual data */}
+            </td>
+            <td style={{ border: '1px solid #ddd', padding: '8px' }}>
+              {link.pointsEarned || 0} {/* Replace with actual data */}
+            </td>
+            <td style={{ border: '1px solid #ddd', padding: '8px', textAlign: 'center' }}>
+              <button
+                onClick={() => {
+                  const encodedMessage = `👋 شارك رابط الإحالة الخاص بك:\n\nاسم المشروع: ${link.projectName}\nرابط الإحالة: ${link.referralLink}`;
+                  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(encodedMessage)}`;
+                  window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                }}
+                style={{
+                  backgroundColor: '#25D366',
+                  color: 'white',
+                  border: 'none',
+                  padding: '5px 10px',
+                  borderRadius: '5px',
+                  cursor: 'pointer',
+                }}
+              >
+                واتساب
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   ) : (
     <p>لا توجد روابط إحالة.</p>
   )}
 </div>
+
 
           </div>
         )}

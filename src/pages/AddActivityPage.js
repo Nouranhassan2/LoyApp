@@ -1,4 +1,5 @@
 // AddActivityPage.js
+/*
 import React, { useState } from 'react';
 
 function AddActivityPage() {
@@ -10,13 +11,13 @@ function AddActivityPage() {
     // هنا يمكن إضافة منطق حفظ النشاط في قاعدة البيانات
     console.log('Activity Added:', { activityName, activityDescription });
   };
-
+/*
   return (
     <div className="add-activity-page">
       <h2>إضافة نشاط جديد</h2>
       <form onSubmit={handleAddActivity}>
         <div className="form-group">
-          <label>اسم النشاط:</label>
+          <label>زفت النشاط:</label>
           <input
             type="text"
             className="form-control"
@@ -38,4 +39,4 @@ function AddActivityPage() {
   );
 }
 
-export default AddActivityPage;
+export default AddActivityPage;*/

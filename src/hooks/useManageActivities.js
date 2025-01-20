@@ -25,24 +25,23 @@ const useManageActivities = (recordsPerPage, searchTerm) => {
     try {
       const activitiesRef = collection(db, 'activities');
       let q;
-
+  
       if (searchTerm) {
         q = query(
           activitiesRef,
           where('name', '>=', searchTerm),
           where('name', '<=', searchTerm + '\uf8ff'),
-          orderBy('name'),
-          orderBy('createdAt', 'desc'),
+          orderBy('name'), // Requires an index
           limit(recordsPerPage)
         );
       } else {
         q = query(
           activitiesRef,
-          orderBy('createdAt', 'desc'),
+          orderBy('createdAt', 'desc'), // Sort by creation date
           limit(recordsPerPage)
         );
       }
-
+  
       const querySnapshot = await getDocs(q);
       const activitiesList = [];
       querySnapshot.forEach((doc) => {
@@ -52,13 +51,15 @@ const useManageActivities = (recordsPerPage, searchTerm) => {
           createdAt: doc.data().createdAt?.toDate().toLocaleDateString('ar-SA') || ''
         });
       });
+      console.log("Fetched activities:", activitiesList); // Verify updated data
 
       setActivities(activitiesList);
     } catch (error) {
       console.error('خطأ في جلب الأنشطة:', error);
-      throw new Error('حدث خطأ أثناء جلب الأنشطة');
+      alert('تعذر تحميل الأنشطة. الرجاء المحاولة لاحقًا.');
     }
   };
+  
 
   // التحقق من تكرار اسم النشاط
   const checkActivityNameSimilarity = async (name) => {
@@ -115,7 +116,10 @@ const useManageActivities = (recordsPerPage, searchTerm) => {
         ...activity,
         createdAt: Timestamp.now(),
         participantsCount: Number(activity.participantsCount) || 0,
-        points: Number(activity.points) || 0
+        points: Number(activity.points) || 0,
+        projectName:activity.projectName,
+        isActive: true, // Default value for new activities
+
       };
 
       const docRef = doc(collection(db, 'activities'));
@@ -205,10 +209,13 @@ const useManageActivities = (recordsPerPage, searchTerm) => {
     }
   };
 
+    
+
   // تحديث البيانات عند تغيير عدد السجلات أو مصطلح البحث
   useEffect(() => {
     fetchActivities();
-  }, [recordsPerPage, searchTerm]);
+  }, [recordsPerPage, searchTerm]); // This is already correct
+  
 
   return {
     activities,

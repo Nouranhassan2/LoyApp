@@ -181,31 +181,60 @@ a {
 table {
   width: 100%;
   border-collapse: collapse;
-  overflow-x: auto;
+  table-layout: fixed; /* Ensures consistent column widths */
 }
 
 table th,
 table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px;
   text-align: center;
+  vertical-align: middle;
 }
 
 table th {
   background-color: var(--primary-color);
   color: var(--white-color);
+  font-weight: bold;
 }
 
-.table-responsive {
-  overflow-x: auto;
+table td a {
+  color: var(--secondary-color);
+  text-decoration: none;
+  word-wrap: break-word;
 }
 
-@media (max-width: 600px) {
+table td button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  cursor: pointer;
+}
+
+table td button:hover {
+  background-color: #76b3e0;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  table {
+    display: block; /* Enables scrolling */
+    overflow-x: auto;
+  }
+
   table th,
   table td {
-    font-size: 14px;
+    font-size: 14px; /* Smaller text for smaller screens */
   }
 }
+
+table td {
+  word-break: break-word; /* Handles long links */
+  overflow-wrap: break-word;
+}
+
 
 /* النماذج */
 form {
